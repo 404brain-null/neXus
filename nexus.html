@@ -1,0 +1,112 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>neXus · Brand governance platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F3EE;--card:#FBFAF6;--ink:#0F1A2B;--mut:#4d586a;--line:#ddd9cf;--teal:#0E7F74;--tealb:#2EC4B6;--amb:#B76A00;--ambbg:#fdf0dc;--red:#b3261e;--dark:#0F1A2B;--darkt:#F5F3EE;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1320;--card:#14223a;--ink:#F5F3EE;--mut:#a9b3c4;--line:#27364f;--teal:#2EC4B6;--amb:#F4A340;--ambbg:#3a2b12;--red:#ff8a80;--dark:#2EC4B6;--darkt:#0F1A2B}}
+html{height:100%}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'DM Sans',system-ui,sans-serif}
+h1,h2,h3{font-family:'Space Grotesk','DM Sans',sans-serif;margin:0}
+.wrap{max-width:1050px;margin:0 auto;padding:18px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.logo{font:700 28px 'Space Grotesk',sans-serif}.logo small{display:block;font:500 12px 'DM Sans';color:var(--teal);letter-spacing:.12em;text-transform:uppercase}
+select,input,textarea,button{font:inherit;color:var(--ink)}
+select,input,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px}
+textarea{width:100%;min-height:170px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0;overflow-x:auto}
+nav button,.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;cursor:pointer}
+nav button.on,.btn.pri{background:var(--dark);color:var(--darkt);border-color:var(--dark)}
+.btn.sm{padding:4px 10px;font-size:13px}.btn.ok{border-color:var(--teal);color:var(--teal)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--ambbg);color:var(--amb)}
+.tag.u{background:#e6e0ff;color:#4a3aa8}.tag.g{background:#d9f5f1;color:#0a6a60}
+.pre{white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Menlo,monospace;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:60px}
+mark{background:#ffd98a;color:#000;border-radius:3px;padding:0 2px}mark.u{background:#cfc4ff}
+.mut{color:var(--mut)}.fix{color:var(--teal);font-weight:700}.bar{height:10px;border-radius:5px;background:var(--tealb);margin:3px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+.wide{overflow-x:auto}
+</style></head><body><div class="wrap" id="app"></div>
+<script>
+const PAL=['#0F1A2B','#2EC4B6','#F5F3EE','#F4A340','#FFFFFF'];
+const DEF=[
+{cat:'Unsupported claims',pattern:'\\bguaranteed?\\b',fix:'',why:'“guaranteed” has no approved evidence in the claims library.',src:'Claims Library · C-01'},
+{cat:'Unsupported claims',pattern:'#1|\\bnumber (one|1)\\b|\\bbest in (the )?(world|class|market)\\b',fix:'trusted',why:'Ranking claims need approved third-party proof.',src:'Claims Library · C-02'},
+{cat:'Unsupported claims',pattern:'\\bin \\d+ (days?|hours?|minutes?)\\b',fix:'faster',why:'Specific timeframes are not in the approved fact library.',src:'Fact Library · F-07'},
+{cat:'Unsupported claims',pattern:'\\b100%|\\brisk-free\\b|\\bnever fails?\\b',fix:'designed to reduce risk',why:'Absolute claims cannot be evidenced.',src:'Claims Library · C-03'},
+{cat:'Unsupported claims',pattern:'\\binstantly\\b',fix:'quickly',why:'“instantly” is not supported by approved performance data.',src:'Claims Library · C-04'},
+{cat:'Terminology',pattern:'\\b(Nexus|NEXUS|nexus)\\b',fix:'neXus',why:'The product name is always written “neXus”.',src:'Brand Guidelines §2.1',cs:1},
+{cat:'Terminology',pattern:'\\bcheap\\b',fix:'affordable',why:'“cheap” is a banned word; it undermines positioning.',src:'Brand Guidelines §2.4'},
+{cat:'Terminology',pattern:'\\bsynergy\\b',fix:'collaboration',why:'Jargon on the banned-words list.',src:'Brand Guidelines §2.5'},
+{cat:'Tone',pattern:'\\b(revolutionary|game-?changing|disruptive|cutting-edge)\\b',fix:'modern',why:'Our voice is clear and confident, not hype-driven.',src:'Brand Voice §1.2'},
+{cat:'Tone',pattern:'\\bgonna\\b',fix:'going to',why:'Avoid slang; voice is friendly but professional.',src:'Brand Voice §1.3'},
+{cat:'Tone',pattern:'\\bawesome\\b',fix:'excellent',why:'Avoid slang; voice is friendly but professional.',src:'Brand Voice §1.3'},
+{cat:'Messaging',pattern:'fully automat(ed|ic)(ally)?',fix:'supported by human review',why:'Positioning: automation with human control. People decide.',src:'Positioning §3.1'},
+{cat:'Messaging',pattern:'replaces? (your |the )?(team|reviewers?|humans?|people)',fix:'supports your team',why:'neXus supports people; it never replaces them.',src:'Positioning §3.2'},
+{cat:'Messaging',pattern:'auto-?(publish|approve)\\w*',fix:'publish after approval',why:'Nothing goes live without a person’s decision.',src:'Positioning §3.3'}];
+const SEV=c=>(c=='Unsupported claims'||c=='Messaging')?'high':'med';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const lum=h=>{const c=[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+const cr=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const near=h=>{let b=PAL[0],d=1e9;PAL.forEach(p=>{const e=[1,3,5].reduce((s,i)=>s+Math.pow(parseInt(h.substr(i,2),16)-parseInt(p.substr(i,2),16),2),0);if(e<d){d=e;b=p}});return b};
+const SAMPLE='Our guaranteed #1 solution delivers results in 7 days. Nexus is a REVOLUTIONARY tool that replaces your review team!!! Click here to learn more.\n<img src="hero.png">\n<p style="color:#9aa0a6;background:#ffffff;font-family:Arial">Instantly the best way to publish.</p>';
+let S={role:'Creator',tab:'check',draft:{title:'Spring launch announcement',channel:'Web and blog copy',text:SAMPLE},res:null,items:[],lib:JSON.parse(JSON.stringify(DEF)),log:[],dis:[],n:1};
+try{const x=localStorage.getItem('nexus_v1');if(x){const o=JSON.parse(x);S=Object.assign(S,o,{res:null})}}catch(e){}
+const save=()=>{try{localStorage.setItem('nexus_v1',JSON.stringify(Object.assign({},S,{res:null})))}catch(e){}};
+const logit=(a,d)=>{S.log.unshift({ts:new Date().toLocaleString(),who:S.role,a,d});save()};
+function check(){const t=S.draft.text,o=[];
+const add=(cat,m,fix,why,src,sev)=>{if(!m[0].length)return;const k=cat+'|'+m[0];if(S.dis.some(d=>d.k==k))return;o.push({cat,start:m.index,end:m.index+m[0].length,text:m[0],fix,why,src,sev:sev||SEV(cat),k})};
+const all=(re,fn)=>{let m;re.lastIndex=0;while((m=re.exec(t)))fn(m)};
+S.lib.forEach(r=>{try{all(new RegExp(r.pattern,r.cs?'g':'gi'),m=>add(r.cat,m,r.fix,r.why,r.src))}catch(e){}});
+all(/\b(best|leading|top|fastest|safest|most trusted)\b/gi,m=>add('Unsupported claims',m,null,'Comparative claim. neXus can’t verify it against approved sources, so a human reviewer must decide.','Claims Library · uncertain','uncertain'));
+all(/!{2,}/g,m=>add('Tone',m,'!','Multiple exclamation marks feel shouty; keep the voice calm and confident.','Brand Voice §1.1'));
+all(/\b[A-Z]{5,}\b/g,m=>add('Tone',m,m[0][0]+m[0].slice(1).toLowerCase(),'ALL-CAPS reads as shouting and hurts readability.','Brand Voice §1.1'));
+all(/click here/gi,m=>add('Accessibility',m,'read the details','Vague link text fails screen-reader users (WCAG 2.4.4).','Accessibility Standard §A4'));
+all(/<img(?![^>]*\balt=)[^>]*>/gi,m=>add('Accessibility',m,m[0].replace(/>$/,' alt="[describe the image]">'),'Images need alt text (WCAG 1.1.1).','Accessibility Standard §A1'));
+all(/[^.!?\n]+[.!?]?/g,m=>{if(m[0].trim().split(/\s+/).length>30)add('Accessibility',m,null,'Sentence is over 30 words; hard to read. Split it.','Accessibility Standard §A6','med')});
+all(/color:\s*(#[0-9a-f]{6})[^;"]*;\s*background(?:-color)?:\s*(#[0-9a-f]{6})/gi,m=>{const r=cr(m[1],m[2]);if(r<4.5){const best=cr(PAL[0],m[2])>cr(PAL[2],m[2])?PAL[0]:PAL[2];add('Accessibility',m,m[0].replace(m[1],best),'Contrast ratio '+r.toFixed(1)+':1 is below the 4.5:1 minimum (WCAG 1.4.3).','Accessibility Standard §A2')}});
+all(/#[0-9a-f]{6}\b/gi,m=>{if(!PAL.some(p=>p.toLowerCase()==m[0].toLowerCase()))add('Visual consistency',m,near(m[0]),'Colour is not in the approved palette; nearest brand colour suggested.','Visual Identity §4.2')});
+all(/font-family:\s*[^;"}]+/gi,m=>{if(!/Space Grotesk|DM Sans/i.test(m[0]))add('Visual consistency',m,"font-family:'DM Sans',sans-serif",'Only Space Grotesk and DM Sans are approved.','Visual Identity §5.1')});
+o.sort((a,b)=>a.start-b.start||b.end-a.end);const r=[];let e=-1;o.forEach(f=>{if(f.start>=e){r.push(f);e=f.end}});return r}
+const items=()=>S.items;
+function render(){const A=document.getElementById('app'),tabs=[['check','Check content'],['queue','Review queue'],['library','Guidelines library'],['insights','Insights'],['audit','Audit log']];
+A.innerHTML=`<header><div class="logo">neXus<small>Brand governance that explains issues</small></div><label class="row mut">Signed in as <select data-a="role">${['Creator','Manager','Authorised reviewer'].map(r=>`<option ${r==S.role?'selected':''}>${r}</option>`).join('')}</select></label></header>
+<nav>${tabs.map(t=>`<button data-a="tab" data-v="${t[0]}" class="${S.tab==t[0]?'on':''}">${t[1]}</button>`).join('')}</nav>${V[S.tab]()}`}
+const V={
+check(){const f=S.res,t=S.draft.text;let hl='';if(f){let p=0;f.forEach(x=>{hl+=esc(t.slice(p,x.start))+`<mark class="${x.sev=='uncertain'?'u':''}">${esc(x.text)}</mark>`;p=x.end});hl+=esc(t.slice(p))}
+return `<div class="grid"><div><div class="card"><h3>1 · Draft</h3><p class="mut">Paste text or HTML/CSS. Try the sample, then run the check.</p><div class="row"><input data-f="title" value="${esc(S.draft.title)}" placeholder="Title" style="flex:1"><select data-f="channel">${['Web and blog copy','Social posts and ads','Emails and newsletters','Images and design files','Slide decks and PDFs'].map(c=>`<option ${c==S.draft.channel?'selected':''}>${c}</option>`).join('')}</select></div><textarea data-f="text" style="margin-top:8px">${esc(t)}</textarea><div class="row" style="margin-top:8px"><button class="btn pri" data-a="run">Run brand check</button><button class="btn" data-a="sample">Load sample</button><button class="btn" data-a="clear">Clear</button></div></div>
+${f?`<div class="card"><h3>Highlighted draft</h3><div class="pre">${hl}</div></div>`:''}</div>
+<div><div class="card"><h3>2 · Explained issues ${f?`<span class="tag ${f.length?'':'g'}">${f.length} found</span>`:''}</h3>${!f?'<p class="mut">No check run yet.</p>':f.length==0?'<p class="fix">No issues found. Ready to submit for approval.</p>':f.map((x,i)=>`<div class="card"><span class="tag ${x.sev=='uncertain'?'u':''}">${x.cat}${x.sev=='uncertain'?' · needs human':''}</span><p><b>“${esc(x.text.length>70?x.text.slice(0,70)+'…':x.text)}”</b><br>${esc(x.why)}</p><p class="mut" style="font-size:13px">Checked against: ${esc(x.src)}</p>${x.fix!==null?`<p>Suggested fix: <span class="fix">${x.fix===''?'(remove)':esc(x.fix.length>70?x.fix.slice(0,70)+'…':x.fix)}</span></p><button class="btn sm ok" data-a="acc" data-i="${i}">Accept fix</button> `:''}<button class="btn sm" data-a="dis" data-i="${i}">${x.fix===null?'Keep, send to reviewer':'Dismiss'}</button></div>`).join('')}
+${f&&f.some(x=>x.fix!==null)?'<button class="btn sm ok" data-a="accall">Accept all suggested fixes</button> ':''}${f?'<button class="btn pri" data-a="submit">Submit for approval</button>':''}</div></div></div>`},
+queue(){const R=S.role,my=S.items.filter(i=>R=='Creator'?true:R=='Manager'?i.status!='draft':i.route=='reviewer'||i.status=='published');
+return `<h2>Review queue · ${R}</h2><p class="mut">${R=='Creator'?'Your submissions and their status.':R=='Manager'?'Approve routine content, escalate risky content, resolve disputes.':'Final sign-off on sensitive or high-risk content.'}</p>`+(my.length?my.map(i=>{const can=i.status=='in_review'&&(R=='Authorised reviewer'||(R=='Manager'&&i.route=='manager'));
+return `<div class="card"><div class="row"><b>${esc(i.title)}</b><span class="tag ${i.status=='published'||i.status=='approved'?'g':''}">${i.status.replace('_',' ')}</span><span class="tag">${i.route=='reviewer'?'High-risk → reviewer':'Routine → manager'}</span><span class="mut">${esc(i.channel)} · ${i.open} issue(s) open at submit</span></div><div class="pre" style="margin:8px 0">${esc(i.text)}</div>${i.flags.length?`<p class="mut">Open flags: ${i.flags.map(esc).join(' · ')}</p>`:''}${i.comment?`<p>Comment: ${esc(i.comment)}</p>`:''}
+${can?`<div class="row"><input id="c-${i.id}" placeholder="Comment (required to request changes)" style="flex:1"><button class="btn ok" data-a="approve" data-id="${i.id}">Approve</button><button class="btn" data-a="reject" data-id="${i.id}">Request changes</button>${R=='Manager'?`<button class="btn" data-a="esc" data-id="${i.id}">Escalate</button>`:''}</div>`:''}
+${i.status=='approved'&&R!='Authorised reviewer'?`<button class="btn pri" data-a="publish" data-id="${i.id}">Publish</button>`:''}${i.status=='changes_requested'&&R=='Creator'?`<button class="btn" data-a="reopen" data-id="${i.id}">Edit again</button>`:''}${i.status=='published'?'<p class="fix">Published with an audit record.</p>':''}</div>`}).join(''):'<div class="card mut">Nothing here yet. Submit content from “Check content”.</div>')},
+library(){const ed=S.role!='Creator';return `<h2>Source of truth</h2><p class="mut">Checks use only these approved rules (plus built-in accessibility and visual checks against the palette ${PAL.join(', ')}). ${ed?'':'Switch to Manager to edit.'}</p>
+${ed?`<div class="card"><div class="row"><select id="n-cat">${['Unsupported claims','Terminology','Tone','Messaging'].map(c=>`<option>${c}</option>`).join('')}</select><input id="n-pat" placeholder="Regex, e.g. \\bcutting edge\\b" style="flex:1"><input id="n-fix" placeholder="Replacement"><input id="n-why" placeholder="Reason" style="flex:1"><button class="btn pri" data-a="addrule">Add rule</button></div></div>`:''}
+<div class="card wide"><table><tr><th>Category</th><th>Pattern</th><th>Fix</th><th>Reason</th><th>Source</th><th></th></tr>${S.lib.map((r,i)=>`<tr><td>${r.cat}</td><td><code>${esc(r.pattern)}</code></td><td>${esc(r.fix)||'(remove)'}</td><td>${esc(r.why)}</td><td>${esc(r.src)}</td><td>${ed?`<button class="btn sm" data-a="delrule" data-i="${i}">×</button>`:''}</td></tr>`).join('')}</table></div>`},
+insights(){const c={},d={};S.items.forEach(i=>i.flags.forEach(f=>c[f]=(c[f]||0)+1));S.dis.forEach(x=>d[x.cat]=(d[x.cat]||0)+1);const caught=S.log.filter(l=>l.a=='Accepted fix').length,pub=S.items.filter(i=>i.status=='published').length;
+const bars=o=>Object.keys(o).length?Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div>${k} · ${v}<div class="bar" style="width:${Math.min(100,v*20)}%"></div></div>`).join(''):'<p class="mut">No data yet.</p>';
+return `<h2>Insights for brand owners</h2><div class="grid"><div class="card"><h3>${S.items.length}</h3>submitted · ${pub} published · ${caught} fixes accepted before publishing</div><div class="card"><h3>Mistakes that keep repeating</h3>${bars(c)}</div><div class="card"><h3>Rules people dispute</h3>${bars(d)}${Object.values(d).some(v=>v>=2)?'<p class="fix">Suggested: clarify guidelines in categories with 2+ disputes.</p>':''}</div></div>`},
+audit(){return `<h2>Audit log</h2><div class="card wide"><table><tr><th>Time</th><th>Role</th><th>Action</th><th>Detail</th></tr>${S.log.map(l=>`<tr><td>${esc(l.ts)}</td><td>${esc(l.who)}</td><td>${esc(l.a)}</td><td>${esc(l.d)}</td></tr>`).join('')||'<tr><td colspan=4 class="mut">No events yet.</td></tr>'}</table></div><button class="btn sm" data-a="reset">Reset demo data</button>`}};
+const setItem=(id,fn)=>{const i=S.items.find(x=>x.id==id);if(i)fn(i)};
+document.addEventListener('input',e=>{const f=e.target.dataset.f;if(f){S.draft[f]=e.target.value;save()}});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.a=='role'){S.role=t.value;logit('Role switched',t.value);render()}else if(t.dataset.f)S.draft[t.dataset.f]=t.value});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.tagName=='SELECT')return;const a=b.dataset.a,i=+b.dataset.i,id=b.dataset.id;
+if(a=='tab')S.tab=b.dataset.v;
+else if(a=='run'){S.res=check();logit('Check run',S.res.length+' issue(s)')}
+else if(a=='sample'){S.draft.text=SAMPLE;S.res=null}
+else if(a=='clear'){S.draft.text='';S.res=null}
+else if(a=='acc'||a=='accall'){const list=a=='acc'?[S.res[i]]:S.res.filter(x=>x.fix!==null).reverse();let t=S.draft.text;list.sort((p,q)=>q.start-p.start).forEach(f=>{t=t.slice(0,f.start)+f.fix+t.slice(f.end);logit('Accepted fix',f.cat+': '+f.text.slice(0,40)+' → '+(f.fix||'(removed)').slice(0,40))});S.draft.text=t.replace(/ {2,}/g,' ').replace(/ ([.,!?])/g,'$1');S.res=check()}
+else if(a=='dis'){const f=S.res[i];S.dis.push({k:f.k,cat:f.cat});logit('Dismissed flag',f.cat+': '+f.text.slice(0,40));S.res=check()}
+else if(a=='submit'){const f=S.res||check();const d=S.draft;S.items.unshift({id:S.n++,title:d.title||'Untitled',channel:d.channel,text:d.text,status:'in_review',route:f.some(x=>x.sev!='med')?'reviewer':'manager',open:f.length,flags:f.map(x=>x.cat)});logit('Submitted for approval',d.title+' → '+S.items[0].route);S.tab='queue'}
+else if(a=='approve'){setItem(id,i=>{i.status='approved';i.comment=document.getElementById('c-'+id).value;logit('Approved',i.title)})}
+else if(a=='reject'){const c=document.getElementById('c-'+id).value;if(!c){alert('Add a comment explaining the changes needed.');return}setItem(id,i=>{i.status='changes_requested';i.comment=c;logit('Changes requested',i.title+': '+c)})}
+else if(a=='esc'){setItem(id,i=>{i.route='reviewer';logit('Escalated to reviewer',i.title)})}
+else if(a=='publish'){setItem(id,i=>{i.status='published';logit('Published',i.title)})}
+else if(a=='reopen'){setItem(id,i=>{S.draft={title:i.title,channel:i.channel,text:i.text};S.items=S.items.filter(x=>x.id!=id);S.res=null;S.tab='check';logit('Reopened for edit',i.title)})}
+else if(a=='addrule'){const p=document.getElementById('n-pat').value;try{new RegExp(p)}catch(x){alert('Invalid pattern');return}if(!p)return;S.lib.push({cat:document.getElementById('n-cat').value,pattern:p,fix:document.getElementById('n-fix').value,why:document.getElementById('n-why').value||'Custom rule',src:'Brand owner rule'});logit('Rule added',p)}
+else if(a=='delrule'){logit('Rule removed',S.lib[i].pattern);S.lib.splice(i,1)}
+else if(a=='reset'){if(confirm('Reset all demo data?')){S.items=[];S.log=[];S.dis=[];S.lib=JSON.parse(JSON.stringify(DEF));S.res=null}}
+save();render()});
+render();
+</script></body></html>
